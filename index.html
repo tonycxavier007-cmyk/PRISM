@@ -169,12 +169,33 @@ const FIREBASE_CONFIG={
   measurementId:"G-E23GMDTWLZ"
 };
 let FB=null;
-async function fbInit(){if(FB)return FB;const B='https://www.gstatic.com/firebasejs/13.2.0/';const a=await import(B+'firebase-app.js'),u=await import(B+'firebase-auth.js');FB={u,auth:u.getAuth(a.initializeApp(FIREBASE_CONFIG))};return FB}
+async function fbInit(){
+ if(FB)return FB;
+ const B='https://www.gstatic.com/firebasejs/13.2.0/';
+ const a=await import(B+'firebase-app.js'),u=await import(B+'firebase-auth.js'),d=await import(B+'firebase-firestore.js');
+ const app=a.initializeApp(FIREBASE_CONFIG);
+ FB={u,d,auth:u.getAuth(app),db:d.getFirestore(app)};
+ return FB;
+}
+// Sync only a small, public profile record. Never upload local passwords or image data URLs.
+async function syncGoogleProfile(f,uid,username,profile){
+ const avatarIndex=Number.isInteger(profile.av?.a)?profile.av.a:0;
+ const publicProfile={username,name:String(profile.name||username).slice(0,24),bio:String(profile.bio||'').slice(0,160),avatarIndex,createdAt:Number(profile.t||Date.now()),updatedAt:Date.now()};
+ await f.d.setDoc(f.d.doc(f.db,'users',uid),publicProfile,{merge:true});
+}
 async function gLogin(){if(!FIREBASE_CONFIG)return toast('Google login: add your Firebase config first');
-try{const f=await fbInit(),g=(await f.u.signInWithPopup(f.auth,new f.u.GoogleAuthProvider())).user;let G={};try{G=JSON.parse(localStorage.getItem('prism_g'))||{}}catch(e){}
-let h=G[g.uid];if(!h||!S.users[h]){let b=(g.email||g.displayName||'user').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,12);if(b.length<3)b='user'+b;h=b;let n=1;while(S.users[h])h=b+(n++);
-put('users',h,{name:(g.displayName||h).slice(0,24),bio:'',av:{a:Math.floor(Math.random()*30)},t:ts(),gid:g.uid});G[g.uid]=h;localStorage.setItem('prism_g',JSON.stringify(G))}
-me=h;localStorage.setItem('prism_me',h);tab='home';F=1;render()}catch(e){toast('Google login cancelled or failed')}}
+try{
+ const f=await fbInit(),g=(await f.u.signInWithPopup(f.auth,new f.u.GoogleAuthProvider())).user;
+ let G={};try{G=JSON.parse(localStorage.getItem('prism_g'))||{}}catch(e){}
+ let h=G[g.uid];
+ if(!h||!S.users[h]){
+  let b=(g.email||g.displayName||'user').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,12);if(b.length<3)b='user'+b;h=b;let n=1;while(S.users[h])h=b+(n++);
+  put('users',h,{name:(g.displayName||h).slice(0,24),bio:'',av:{a:Math.floor(Math.random()*30)},t:ts(),gid:g.uid});
+  G[g.uid]=h;localStorage.setItem('prism_g',JSON.stringify(G));
+ }
+ me=h;localStorage.setItem('prism_me',h);tab='home';F=1;render();
+ try{await syncGoogleProfile(f,g.uid,h,S.users[h]);toast('Signed in. Profile synced to cloud.')}catch(syncError){console.error('PRISM profile sync:',syncError);toast('Signed in, but cloud profile sync failed. Check Firestore Rules.')}
+}catch(e){console.error('PRISM Google sign-in:',e);toast('Google login cancelled or failed')}}
 // feed
 const fbtn=h=>{if(h==me)return'';const f=(E(me).fl||[]).includes(h);return`<button class="fb${f?' on':''}" data-f="${h}" onclick="event.stopPropagation();follow('${h}')">${f?'Unfollow':'Follow'}</button>`};
 function follow(h){const on=!(E(me).fl||[]).includes(h);mut(e=>{on?e.fl.push(h):e.fl.splice(e.fl.indexOf(h),1)});document.querySelectorAll(`[data-f="${h}"]`).forEach(b=>{b.classList.toggle('on',on);b.textContent=on?'Unfollow':'Follow'})}
