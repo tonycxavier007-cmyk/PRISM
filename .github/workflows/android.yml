@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'google-services.json'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -39,6 +40,7 @@ jobs:
           echo '{"appId":"com.prism.shareyourlight","appName":"PRISM","webDir":"www"}' > capacitor.config.json
           npx cap add android
           npx cap sync android
+          cp google-services.json android/app/google-services.json
 
       - name: Increase Gradle download timeout
         run: |
