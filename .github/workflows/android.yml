@@ -1,50 +1,7 @@
-name: Build PRISM Android APK
-
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'index.html'
-      - 'google-services.json'
-      - '.github/workflows/android.yml'
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Get PRISM source
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Prepare Capacitor
-        run: |
-          npm init -y
-          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
-          mkdir www
-          cp index.html www/
-          cp manifest.webmanifest www/
-          cp sw.js www/
-          cp icon-192.png www/
-          cp icon-512.png www/
-          echo '{"appId":"com.prism.shareyourlight","appName":"PRISM","webDir":"www"}' > capacitor.config.json
-          npx cap add android
-          npx cap sync android
-          cp google-services.json android/app/google-services.json
-
       - name: Configure Gradle download
         run: |
           FILE=android/gradle/wrapper/gradle-wrapper.properties
+          sed -i 's#services.gradle.org/distributions/#downloads.gradle.org/distributions/#' "$FILE"
           sed -i 's/-all\.zip/-bin.zip/' "$FILE"
           if grep -q '^networkTimeout=' "$FILE"; then
             sed -i 's/^networkTimeout=.*/networkTimeout=120000/' "$FILE"
@@ -52,20 +9,3 @@ jobs:
             sed -i '/^distributionUrl=/a networkTimeout=120000' "$FILE"
           fi
           cat "$FILE"
-
-      - name: Build Android APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-
-      - name: Get Android SHA-1
-        run: |
-          cd android
-          ./gradlew signingReport
-
-      - name: Upload PRISM APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: PRISM-Android-Test
-          path: android/app/build/outputs/apk/debug/app-debug.apk
