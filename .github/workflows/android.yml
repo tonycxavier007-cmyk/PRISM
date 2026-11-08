@@ -42,28 +42,21 @@ jobs:
           npx cap sync android
           cp google-services.json android/app/google-services.json
 
-      - name: Configure Gradle download
-        run: |
-          FILE=android/gradle/wrapper/gradle-wrapper.properties
-          sed -i 's#services.gradle.org/distributions/#downloads.gradle.org/distributions/#' "$FILE"
-          sed -i 's/-all\.zip/-bin.zip/' "$FILE"
-          if grep -q '^networkTimeout=' "$FILE"; then
-            sed -i 's/^networkTimeout=.*/networkTimeout=120000/' "$FILE"
-          else
-            sed -i '/^distributionUrl=/a networkTimeout=120000' "$FILE"
-          fi
-          cat "$FILE"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.11.1'
+          cache-provider: basic
 
       - name: Build Android APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Get Android SHA-1
         run: |
           cd android
-          ./gradlew signingReport
+          gradle signingReport
 
       - name: Upload PRISM APK
         uses: actions/upload-artifact@v4
