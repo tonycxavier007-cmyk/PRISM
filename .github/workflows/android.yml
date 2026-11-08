@@ -42,7 +42,12 @@ jobs:
 
       - name: Increase Gradle download timeout
         run: |
-          sed -i '/^distributionUrl=/a networkTimeout=120000' android/gradle/wrapper/gradle-wrapper.properties
+          FILE=android/gradle/wrapper/gradle-wrapper.properties
+          if grep -q '^networkTimeout=' "$FILE"; then
+            sed -i 's/^networkTimeout=.*/networkTimeout=120000/' "$FILE"
+          else
+            sed -i '/^distributionUrl=/a networkTimeout=120000' "$FILE"
+          fi
 
       - name: Build Android APK
         run: |
