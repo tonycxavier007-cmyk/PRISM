@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "231575414365",
+    "project_id": "prism-aeb79",
+    "storage_bucket": "prism-aeb79.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231575414365:android:03cb005b7c790d0588cfb4",
+        "android_client_info": {
+          "package_name": "com.prism.shareyourlight"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "231575414365-i70afno3o9avl7sbv7c6d09lelm5h8o4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9Ovck9GsmKh-9Ow6SrPiK2pHn4WgAo5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "231575414365-i70afno3o9avl7sbv7c6d09lelm5h8o4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
