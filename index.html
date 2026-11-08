@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>PRISM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1a14">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png" type="image/png">
 <style>
 :root{--mut:#ffffffbf;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -271,4 +274,4 @@ v.play().then(go2).catch(()=>{tp.style.display='grid'});
 sp.onclick=()=>{if(d||!v.paused)return;v.muted=false;v.play().then(go2).catch(end)};
 setTimeout(end,15000)})();
 seed();render();
-</script></body></html>
+</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('PRISM offline setup:',e)));}</script></body></html>
