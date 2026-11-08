@@ -46,6 +46,11 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Get Android SHA-1
+        run: |
+          cd android
+          ./gradlew signingReport
+
       - name: Upload PRISM APK
         uses: actions/upload-artifact@v4
         with:
